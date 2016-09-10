@@ -5,6 +5,7 @@ import bs4
 import requests
 import urllib.request
 
+# A function to create a list of all the links on the class webpage
 def pull_possible_links(url, recursion_level):
     """soup_pul(string url, int recursion_level)"""
     # set the new recursion level
@@ -29,6 +30,8 @@ def pull_possible_links(url, recursion_level):
                 else:
                     workfile.write(href + " " + str(new_recursion_level) + "\n")
 
+# A function to choose which links to download stuff from
+# Because downloading massive files and/or malware willy-nilly is bad
 def select_possible_links():
     file_lines = []
     with open('selected_hrefs.txt', 'w') as workfile:
@@ -42,11 +45,7 @@ def select_possible_links():
                 else:
                     workfile.write("\n")
 
-def download(url, file_name):
-    with open(file_name, 'wb') as workfile:
-        response = requests.get(url)
-        workfile.write(response.content)
-
+# Download files from the selected links
 def pull_links():
     pattern = re.compile('.*\/(.*)')
     limit_counter = 0
