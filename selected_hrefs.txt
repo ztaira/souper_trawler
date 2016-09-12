@@ -18,6 +18,7 @@ http://www.ece.neu.edu/courses/eece2412/2016fa/lab/lab-sched-2016fa.pdf
 http://www.ece.neu.edu/courses/eece2412/2016fa/HW1_EECE2412_Fa2016.pdf
 http://www.ece.neu.edu/courses/eece2412/2016fa/class20160907.pdf
 http://www.ece.neu.edu/courses/eece2412/2016fa/class20160908.pdf
+
 http://www.ece.neu.edu/courses/eece2412/2016sp/matlab_tutorial.pdf
 http://www.ece.neu.edu/courses/eece2412/2016sp/ch4-op-amp.pdf
 http://www.ece.neu.edu/courses/eece2412/2016sp/html/opamp.html

@@ -1,8 +1,9 @@
+"""A script to pull down files from my professor's class website"""
+
 import sys
 import os
 import re
 import bs4
-import requests
 import urllib.request
 
 # A function to create a list of all the links on the class webpage
@@ -12,7 +13,7 @@ def pull_possible_links(url, recursion_level):
     new_recursion_level = recursion_level + 1
     # get all the href tags
     with urllib.request.urlopen(url) as response:
-           html = response.read()
+        html = response.read()
     soup = bs4.BeautifulSoup(html, 'html.parser')
     a_tags = soup.find_all(href=True)
     with open('hrefs.txt', 'a+') as workfile:
@@ -25,7 +26,7 @@ def pull_possible_links(url, recursion_level):
                 if 'y' in answer:
                     pull_possible_links(url+href, new_recursion_level)
             else:
-                if (href[0:3] != "htt"):
+                if href[0:3] != "htt":
                     workfile.write(url + href + " " + str(new_recursion_level) + "\n")
                 else:
                     workfile.write(href + " " + str(new_recursion_level) + "\n")
@@ -33,7 +34,10 @@ def pull_possible_links(url, recursion_level):
 # A function to choose which links to download stuff from
 # Because downloading massive files and/or malware willy-nilly is bad
 def select_possible_links():
-    file_lines = []
+    """select_possible_links() must run after hrefs.txt has already
+    been created. It will create a file called selected_hrefs.txt, which is
+    identical to hrefs.txt but has blank lines in the place of links that were
+    not chosen to be pulled from."""
     with open('selected_hrefs.txt', 'w') as workfile:
         with open('hrefs.txt', 'r') as readfile:
             print("Get url? y/n")
@@ -47,6 +51,7 @@ def select_possible_links():
 
 # Download files from the selected links
 def pull_links():
+    """pull_links() downloads files using the lines from selected_hrefs.txt"""
     pattern = re.compile('.*\/(.*)')
     limit_counter = 0
     with open('selected_hrefs.txt', 'r') as readfile:
@@ -63,7 +68,7 @@ def pull_links():
                 print("Limit Reached!")
 
 if __name__ == "__main__":
-    pull_possible_links('http://www.ece.neu.edu/courses/eece2412/2016fa/', 0)
-    select_possible_links()
+    # pull_possible_links('http://www.ece.neu.edu/courses/eece2412/2016fa/', 0)
+    # select_possible_links()
     pull_links()
 
