@@ -1,0 +1,516 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN">
+<html xmlns:mwsh="http://www.mathworks.com/namespace/mcode/v1/syntaxhighlight.dtd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      -->
+      <title>opamp</title>
+      <meta name="generator" content="MATLAB 7.5">
+      <meta name="date" content="2009-09-14">
+      <meta name="m-file" content="opamp"><style>
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head>
+   <body>
+      <div class="content">
+         <h2>Contents</h2>
+         <div>
+            <ul>
+               <li><a href="#2">Linear operation</a></li>
+               <li><a href="#3">Inverting amplifier example</a></li>
+               <li><a href="#4">Limit on input for 12-V supply</a></li>
+               <li><a href="#5">Limit on input for 20 mA out of op amp</a></li>
+               <li><a href="#6">Saturation Conditions</a></li>
+               <li><a href="#7">An example of saturation with two signals</a></li>
+               <li><a href="#8">Summing Junction with two signals</a></li>
+               <li><a href="#9">Non-Ideal Op Amps: Finite Gain</a></li>
+               <li><a href="#10">Lorentzian Spectrum to be used for gain-bandwidth analysis</a></li>
+               <li><a href="#11">Non--Ideal Op Amp: Gain and Bandwidth</a></li>
+            </ul>
+         </div><pre class="codeinput"><span class="comment">%%% opamp.m  Notes for Op Amp lectures</span>
+<span class="comment">%</span>
+<span class="comment">% by Chuck DiMarzio</span>
+<span class="comment">%    Northeastern University</span>
+<span class="comment">%    September 2009</span>
+<span class="comment">%</span>
+<span class="comment">% Run at</span>
+moose=clock;
+runtime=[date,<span class="string">' at '</span>,sprintf(<span class="string">'%2.0f'</span>,moose(4)),<span class="string">':'</span>,sprintf(<span class="string">'%02.0f'</span>,moose(5))]
+<span class="comment">%</span>
+</pre><pre class="codeoutput">runtime =
+14-Sep-2009 at 10:57
+</pre><h2>Linear operation<a name="2"></a></h2>
+         <p><img vspace="5" hspace="5" src="opamp_eq3664.png"> </p>
+         <p>No current into or out of input terminals</p>
+         <h2>Inverting amplifier example<a name="3"></a></h2>
+         <p><img vspace="5" hspace="5" src="opamp_eq9385.png"> </p><pre class="codeinput">R_1=1000;R_2=5000;R_L=500;
+A_v = -R_2/R_1  <span class="comment">% Voltage gain</span>
+A_vdB=20*log10(abs(A_v))
+A_i=A_v^2*R_1/R_L  <span class="comment">% Current Gain</span>
+A_idB=20*log10(abs(A_i))
+A_p=A_v*A_i
+A_pdB=10*log10(abs(A_p))
+<span class="comment">%</span>
+
+v_INdemo=[-4:0.1:4];
+v_OUTdemo=v_INdemo*A_v;
+fig1=figure;plot(v_INdemo,v_OUTdemo);
+grid <span class="string">on</span>;
+xlabel(<span class="string">'v_{IN}, Input Voltage, Volts'</span>);
+ylabel(<span class="string">'v_{OUT}, Output Voltage, Volts'</span>);
+title(<span class="string">'Inverting Amplifier: Linear'</span>);
+</pre><pre class="codeoutput">A_v =
+    -5
+A_vdB =
+   13.9794
+A_i =
+    50
+A_idB =
+   33.9794
+A_p =
+  -250
+A_pdB =
+   23.9794
+</pre><img vspace="5" hspace="5" src="opamp_01.png"> <h2>Limit on input for 12-V supply<a name="4"></a></h2><pre class="codeinput">disp(<span class="string">'Limit on input for 12-V supply '</span>);
+v_OUTvlimit=[-12,12]  <span class="comment">% Range of Voltages</span>
+v_INvlimit=v_OUTvlimit./A_v^2*R_1/R_L
+</pre><pre class="codeoutput">Limit on input for 12-V supply 
+v_OUTvlimit =
+   -12    12
+v_INvlimit =
+   -0.9600    0.9600
+</pre><h2>Limit on input for 20 mA out of op amp<a name="5"></a></h2><pre class="codeinput">disp(<span class="string">'Limit on input for 20 mA out of op amp'</span>);
+i0=20e-3*[-1,1] <span class="comment">% Output current in Amps</span>
+r_par=1/(1/R_2+1/R_L)
+v_OUT=i0*r_par  <span class="comment">% Voltage out at these currents</span>
+v_INilimit=v_OUT./A_v      <span class="comment">% Voltage in</span>
+</pre><pre class="codeoutput">Limit on input for 20 mA out of op amp
+i0 =
+   -0.0200    0.0200
+r_par =
+  454.5455
+v_OUT =
+   -9.0909    9.0909
+v_INilimit =
+    1.8182   -1.8182
+</pre><h2>Saturation Conditions<a name="6"></a></h2><pre>Increase R_3 or use a different op amp so that the current limit
+discussed above does not occur.</pre><p><img vspace="5" hspace="5" src="opamp_eq84540.png"> </p><pre class="codeinput">v_OUTp=v_OUTvlimit(2);  <span class="comment">% Output saturated to positive power supply rail</span>
+v_OUTn=v_OUTvlimit(1);  <span class="comment">% Output saturated to negative power supply rail</span>
+<span class="comment">% First plot the voltage at the inverting input as a piecewise linear</span>
+<span class="comment">% plot.  First three lines show the individual pieces, and the last line</span>
+<span class="comment">% puts them together.  The dots show the boundaries.</span>
+<span class="comment">%</span>
+v_minusp=v_INdemo+R_1/(R_2+R_1)*(v_OUTp-v_INdemo);  <span class="comment">% Voltage divider</span>
+v_minusn=v_INdemo+R_1/(R_2+R_1)*(v_OUTn-v_INdemo);  <span class="comment">% Voltage divider</span>
+fig2=figure;plot(v_INdemo,v_minusp,<span class="string">':'</span>,v_INdemo,v_minusn,<span class="string">'--'</span>,<span class="keyword">...</span>
+                 v_INdemo,zeros(size(v_INdemo)),<span class="string">'-.'</span>,<span class="keyword">...</span>
+                 v_INdemo,max(v_minusn,min(0,v_minusp)),<span class="string">'-'</span>,<span class="keyword">...</span>
+                 v_INvlimit,zeros(size(v_INvlimit)),<span class="string">'ko'</span>);
+grid <span class="string">on</span>;
+xlabel(<span class="string">'v_{IN}, Input Voltage, Volts'</span>);
+ylabel(<span class="string">'v_{-},  Volts'</span>);
+title(<span class="string">'Inverting Amplifier Saturation'</span>);
+legend(<span class="string">'Pos Saturation, V_-&lt;V_+'</span>,<span class="keyword">...</span>
+       <span class="string">'Neg Saturation, V_+&lt;V_-'</span>,<span class="keyword">...</span>
+       <span class="string">'Linear Operation'</span>,<span class="string">'Location'</span>,<span class="string">'NorthWest'</span>);
+
+<span class="comment">% Now plot the output voltage as a piecewise linear</span>
+<span class="comment">% plot.  First three lines show the individual pieces, and the last line</span>
+<span class="comment">% puts them together.  The dots show the boundaries.</span>
+<span class="comment">%</span>
+v_OUTwithsat=min(max(v_OUTdemo,-12),12);
+fig3=figure;plot(v_INdemo,v_OUTdemo,<span class="string">'--'</span>,<span class="keyword">...</span>
+                 v_INdemo,v_OUTp*ones(size(v_INdemo)),<span class="string">'--'</span>,<span class="keyword">...</span>
+                 v_INdemo,v_OUTn*ones(size(v_INdemo)),<span class="string">'--'</span>,<span class="keyword">...</span>
+                 v_INdemo,v_OUTwithsat,<span class="string">'-'</span>,<span class="keyword">...</span>
+                 v_INvlimit,v_OUTvlimit,<span class="string">'ko'</span>);
+grid <span class="string">on</span>;
+xlabel(<span class="string">'v_{IN}, Input Voltage, Volts'</span>);
+ylabel(<span class="string">'v_{OUT}, Output Voltage, Volts'</span>);
+title(<span class="string">'Inverting Amplifier: Transfer Characteristics'</span>);
+</pre><img vspace="5" hspace="5" src="opamp_02.png"> <img vspace="5" hspace="5" src="opamp_03.png"> <h2>An example of saturation with two signals<a name="7"></a></h2><pre class="codeinput">t=[0:0.02:40]*1e-3;  <span class="comment">% Time to 40 msec</span>
+f_a=750;  V_apk=5;v_A=V_apk*sin(2*pi*f_a*t);  <span class="comment">% Signals a and b at</span>
+f_b=75;V_bpk=1.0;v_B=V_bpk*sin(2*pi*f_b*t); <span class="comment">% two different frequencies</span>
+v_IN=v_A+v_B;                                 <span class="comment">% Add them</span>
+v_OUT=min(max(-(R_2/R_1*v_IN),v_OUTn),v_OUTp);<span class="comment">% Output including saturation</span>
+fig4=figure;plot(t*1000,v_IN,t*1000,v_OUT);
+xlabel(<span class="string">'t, Time, msec'</span>);
+ylabel(<span class="string">'Input and Output, Volts'</span>);
+title(<span class="string">'Saturation Example'</span>);
+</pre><img vspace="5" hspace="5" src="opamp_04.png"> <h2>Summing Junction with two signals<a name="8"></a></h2><pre class="codeinput">R_1a=1000;R_1b=500;
+f_a=12;  V_apk=1;v_A=V_apk*sin(2*pi*f_a*t);
+f_b=500;V_bpk=0.5;v_B=V_bpk*sin(2*pi*f_b*t);
+v_OUT=min(max(-(R_2/R_1a*v_A+R_2/R_1b*v_B),v_OUTn),v_OUTp);
+fig5=figure;plot(t*1000,v_A,t*1000,v_B,t*1000,v_OUT);
+xlabel(<span class="string">'t, Time, msec'</span>);
+ylabel(<span class="string">'Input and Output, Volts'</span>);
+title(<span class="string">'Summing Junction Output'</span>);
+</pre><img vspace="5" hspace="5" src="opamp_05.png"> <h2>Non-Ideal Op Amps: Finite Gain<a name="9"></a></h2>
+         <p><img vspace="5" hspace="5" src="opamp_eq135966.png"> </p><pre class="codeinput">targetgaindB=[0:100];  <span class="comment">% Our desired gain in dB</span>
+targetgain=10.^(targetgaindB/20); <span class="comment">% R_2/R_1</span>
+A_OL=1e5;
+A_vOL=-targetgain.*A_OL./(A_OL+targetgain+1);
+actualgaindB=20*log10(abs(A_vOL)); <span class="comment">% Remember the abs because voltage gain is</span>
+                                  <span class="comment">% negative</span>
+figure;plot(targetgaindB,actualgaindB,<span class="string">'-'</span>);grid <span class="string">on</span>;
+xlabel(<span class="string">'R_2/R_1, Target Gain, dB'</span>);
+ylabel(<span class="string">'A_{vOL}, Open Loop Gain, dB'</span>);
+
+hold <span class="string">on</span>;  <span class="comment">% Put the next curve on the same plot</span>
+A_OL=1e3;
+A_vOL=-targetgain.*A_OL./(A_OL+targetgain+1);
+actualgaindB=20*log10(abs(A_vOL)); <span class="comment">% Remember the abs because voltage gain is</span>
+                                  <span class="comment">% negative</span>
+plot(targetgaindB,actualgaindB,<span class="string">'--'</span>);
+hold <span class="string">off</span>;
+
+<span class="comment">% A slightly more graceful way to do this plot;</span>
+A_OL=1e5;
+A_vOL=-targetgain.*A_OL./(A_OL+targetgain+1);
+actualgaindB1e5=20*log10(abs(A_vOL));  <span class="comment">% Give the output a different name</span>
+
+A_OL=1e3;
+A_vOL=-targetgain.*A_OL./(A_OL+targetgain+1);
+actualgaindB1e3=20*log10(abs(A_vOL));
+fig6=figure;plot(targetgaindB,actualgaindB1e5,<span class="keyword">...</span>
+                 targetgaindB,actualgaindB1e3);grid <span class="string">on</span>;
+xlabel(<span class="string">'R_2/R_1, Target Gain, dB'</span>);
+ylabel(<span class="string">'A_{vOL}, Open Loop Gain, dB'</span>);  <span class="comment">% Plotting both in one plot command</span>
+                                        <span class="comment">% makes the colors different.</span>
+                                        <span class="comment">% Why didn't that happen the first</span>
+                                        <span class="comment">% time?</span>
+legend(<span class="string">'A_{OL}=10^5'</span>,<span class="string">'A_{OL}=10^3'</span>,<span class="string">'Location'</span>,<span class="string">'NorthWest'</span>);
+</pre><img vspace="5" hspace="5" src="opamp_06.png"> <img vspace="5" hspace="5" src="opamp_07.png"> <h2>Lorentzian Spectrum to be used for gain-bandwidth analysis<a name="10"></a></h2>
+         <p><img vspace="5" hspace="5" src="opamp_eq16821.png"> </p><pre class="codeinput">g0=5;  <span class="comment">% Gain at zero frequency</span>
+fb=1e6;  <span class="comment">% Bandwidth</span>
+<span class="comment">% Plot the spectra of amplitude and phase</span>
+f=10.^[4:0.1:8];  <span class="comment">%</span>
+g=g0./(1+j*f/fb);
+fig8=figure;
+subplot(2,1,1);semilogx(f,abs(g).^2,<span class="string">'-'</span>,fb,abs(g0)^2/2,<span class="string">'o'</span>);grid <span class="string">on</span>;
+ylabel(<span class="string">'g^2, Power Gain'</span>);
+subplot(2,1,2);semilogx(f,180/pi*angle(g),<span class="string">'-'</span>,fb,-45,<span class="string">'o'</span>);grid <span class="string">on</span>;
+moose=axis;axis([moose(1:2),-90,0]);
+xlabel(<span class="string">'f, Frequency, Hz'</span>);
+ylabel(<span class="string">'Phase, deg'</span>);
+
+<span class="comment">% Now show some examples at specific frequencies</span>
+<span class="comment">%</span>
+<span class="comment">%</span>
+freqlist=[1e5,7e5,2e6,1e7];<span class="comment">% operating frequencies</span>
+fig9=figure;
+<span class="keyword">for</span> n=1:4;
+  f=freqlist(n);
+  g=g0/(1+j*f/fb);
+  <span class="comment">%</span>
+  <span class="comment">% Plot time history for a couple cycles</span>
+  t=[0:0.01:1]*2/f;
+  v_IN=exp(j*2*pi*f*t);
+  v_OUT=v_IN*g;
+  subplot(2,2,n);
+  plot(t,real(v_IN),<span class="string">'-'</span>,t,real(v_OUT),<span class="string">'--'</span>);grid <span class="string">on</span>;
+  <span class="keyword">if</span> f&lt;1e6; <span class="comment">% Write the frequency on the plot</span>
+    text(t(12),4,[<span class="string">'f = '</span>,sprintf(<span class="string">'%0.0f'</span>,f/1e3),<span class="string">' kHz'</span>]);
+  <span class="keyword">else</span>;
+    text(t(12),4,[<span class="string">'f = '</span>,sprintf(<span class="string">'%0.0f'</span>,f/1e6),<span class="string">' MHz'</span>]);
+  <span class="keyword">end</span>;
+    text(t(12),2.5,[<span class="string">'f_b = '</span>,sprintf(<span class="string">'%0.0f'</span>,fb/1e6),<span class="string">' MHz'</span>]);
+    axis([t(1),t(end),-5,5]); <span class="comment">% Fix the axes</span>
+  xlabel(<span class="string">'t, Time, sec'</span>);
+  ylabel(<span class="string">'Voltage'</span>);
+<span class="keyword">end</span>;
+<span class="comment">%</span>
+</pre><img vspace="5" hspace="5" src="opamp_08.png"> <img vspace="5" hspace="5" src="opamp_09.png"> <h2>Non--Ideal Op Amp: Gain and Bandwidth<a name="11"></a></h2><pre class="codeinput">faxis=10.^[0:0.1:7];  <span class="comment">% Frequency axis for spectrum</span>
+targetgainaxis=10.^([0:10:130]/20); <span class="comment">% Several gains</span>
+[targetgain,f]=meshgrid(targetgainaxis,faxis);  <span class="comment">% Make these 2-D arrays</span>
+A_0OL=1e5;
+f_BOL=1e6/A_0OL
+A_vOL=-targetgain./(1+(targetgain+1)./A_0OL.*(1+j*f/f_BOL));
+fig7=figure;semilogx(f,20*log10(abs(A_vOL)));grid <span class="string">on</span>;
+xlabel(<span class="string">'f, Frequency, Hz'</span>);
+ylabel(<span class="string">'A_{vOL}(f), Open-Loop Gain'</span>);
+</pre><pre class="codeoutput">f_BOL =
+    10
+</pre><img vspace="5" hspace="5" src="opamp_10.png"> <p class="footer"><br>
+            Published with MATLAB&reg; 7.5<br></p>
+      </div>
+      <!--
+##### SOURCE BEGIN #####
+%%% opamp.m  Notes for Op Amp lectures
+%
+% by Chuck DiMarzio
+%    Northeastern University
+%    September 2009
+%
+% Run at
+moose=clock;
+runtime=[date,' at ',sprintf('%2.0f',moose(4)),':',sprintf('%02.0f',moose(5))]
+%
+%% Linear operation
+%
+% $$ v_- - v_+ = 0 $$
+%
+% No current into or out of input terminals
+%
+
+%% Inverting amplifier example
+%
+%
+% $$ A_v = -\frac{R_2}{R_1}$$
+%
+R_1=1000;R_2=5000;R_L=500;
+A_v = -R_2/R_1  % Voltage gain
+A_vdB=20*log10(abs(A_v))
+A_i=A_v^2*R_1/R_L  % Current Gain
+A_idB=20*log10(abs(A_i))
+A_p=A_v*A_i
+A_pdB=10*log10(abs(A_p))
+%
+
+v_INdemo=[-4:0.1:4];
+v_OUTdemo=v_INdemo*A_v;
+fig1=figure;plot(v_INdemo,v_OUTdemo);
+grid on;
+xlabel('v_{IN}, Input Voltage, Volts');
+ylabel('v_{OUT}, Output Voltage, Volts');
+title('Inverting Amplifier: Linear');
+
+%% Limit on input for 12-V supply 
+%
+disp('Limit on input for 12-V supply ');
+v_OUTvlimit=[-12,12]  % Range of Voltages
+v_INvlimit=v_OUTvlimit./A_v^2*R_1/R_L
+
+%% Limit on input for 20 mA out of op amp
+%
+disp('Limit on input for 20 mA out of op amp');
+i0=20e-3*[-1,1] % Output current in Amps
+r_par=1/(1/R_2+1/R_L)
+v_OUT=i0*r_par  % Voltage out at these currents
+v_INilimit=v_OUT./A_v      % Voltage in
+
+%% Saturation Conditions
+%
+%  Increase R_3 or use a different op amp so that the current limit
+%  discussed above does not occur.
+%
+% $$v_- = v_{IN} \frac{A_v}{A_v+1} + \frac{1}{A_v+1} v_{OUT} $$
+%
+v_OUTp=v_OUTvlimit(2);  % Output saturated to positive power supply rail
+v_OUTn=v_OUTvlimit(1);  % Output saturated to negative power supply rail
+% First plot the voltage at the inverting input as a piecewise linear
+% plot.  First three lines show the individual pieces, and the last line
+% puts them together.  The dots show the boundaries.
+%
+v_minusp=v_INdemo+R_1/(R_2+R_1)*(v_OUTp-v_INdemo);  % Voltage divider
+v_minusn=v_INdemo+R_1/(R_2+R_1)*(v_OUTn-v_INdemo);  % Voltage divider
+fig2=figure;plot(v_INdemo,v_minusp,':',v_INdemo,v_minusn,'REPLACE_WITH_DASH_DASH',...
+                 v_INdemo,zeros(size(v_INdemo)),'-.',...
+                 v_INdemo,max(v_minusn,min(0,v_minusp)),'-',...
+                 v_INvlimit,zeros(size(v_INvlimit)),'ko');
+grid on;
+xlabel('v_{IN}, Input Voltage, Volts');
+ylabel('v_{-},  Volts');
+title('Inverting Amplifier Saturation');
+legend('Pos Saturation, V_-<V_+',...
+       'Neg Saturation, V_+<V_-',...
+       'Linear Operation','Location','NorthWest');
+
+% Now plot the output voltage as a piecewise linear
+% plot.  First three lines show the individual pieces, and the last line
+% puts them together.  The dots show the boundaries.
+%
+v_OUTwithsat=min(max(v_OUTdemo,-12),12);
+fig3=figure;plot(v_INdemo,v_OUTdemo,'REPLACE_WITH_DASH_DASH',...
+                 v_INdemo,v_OUTp*ones(size(v_INdemo)),'REPLACE_WITH_DASH_DASH',...
+                 v_INdemo,v_OUTn*ones(size(v_INdemo)),'REPLACE_WITH_DASH_DASH',...
+                 v_INdemo,v_OUTwithsat,'-',...
+                 v_INvlimit,v_OUTvlimit,'ko');
+grid on;
+xlabel('v_{IN}, Input Voltage, Volts');
+ylabel('v_{OUT}, Output Voltage, Volts');
+title('Inverting Amplifier: Transfer Characteristics');
+
+%% An example of saturation with two signals
+%
+%
+t=[0:0.02:40]*1e-3;  % Time to 40 msec
+f_a=750;  V_apk=5;v_A=V_apk*sin(2*pi*f_a*t);  % Signals a and b at 
+f_b=75;V_bpk=1.0;v_B=V_bpk*sin(2*pi*f_b*t); % two different frequencies
+v_IN=v_A+v_B;                                 % Add them
+v_OUT=min(max(-(R_2/R_1*v_IN),v_OUTn),v_OUTp);% Output including saturation
+fig4=figure;plot(t*1000,v_IN,t*1000,v_OUT);
+xlabel('t, Time, msec');
+ylabel('Input and Output, Volts');
+title('Saturation Example');
+
+%% Summing Junction with two signals
+%
+%
+R_1a=1000;R_1b=500;
+f_a=12;  V_apk=1;v_A=V_apk*sin(2*pi*f_a*t);
+f_b=500;V_bpk=0.5;v_B=V_bpk*sin(2*pi*f_b*t);
+v_OUT=min(max(-(R_2/R_1a*v_A+R_2/R_1b*v_B),v_OUTn),v_OUTp);
+fig5=figure;plot(t*1000,v_A,t*1000,v_B,t*1000,v_OUT);
+xlabel('t, Time, msec');
+ylabel('Input and Output, Volts');
+title('Summing Junction Output');
+
+%% Non-Ideal Op Amps: Finite Gain
+%
+% $$A_{vOL}=-\frac{R_2}{R_1} \ \frac{A_{OL}}{A_{OL}+\frac{R_2}{R_1} + 1}$$
+%
+targetgaindB=[0:100];  % Our desired gain in dB
+targetgain=10.^(targetgaindB/20); % R_2/R_1 
+A_OL=1e5;
+A_vOL=-targetgain.*A_OL./(A_OL+targetgain+1);
+actualgaindB=20*log10(abs(A_vOL)); % Remember the abs because voltage gain is
+                                  % negative
+figure;plot(targetgaindB,actualgaindB,'-');grid on;
+xlabel('R_2/R_1, Target Gain, dB');
+ylabel('A_{vOL}, Open Loop Gain, dB');
+
+hold on;  % Put the next curve on the same plot
+A_OL=1e3;
+A_vOL=-targetgain.*A_OL./(A_OL+targetgain+1);
+actualgaindB=20*log10(abs(A_vOL)); % Remember the abs because voltage gain is
+                                  % negative
+plot(targetgaindB,actualgaindB,'REPLACE_WITH_DASH_DASH');
+hold off;
+
+% A slightly more graceful way to do this plot;
+A_OL=1e5;
+A_vOL=-targetgain.*A_OL./(A_OL+targetgain+1);
+actualgaindB1e5=20*log10(abs(A_vOL));  % Give the output a different name
+
+A_OL=1e3;
+A_vOL=-targetgain.*A_OL./(A_OL+targetgain+1);
+actualgaindB1e3=20*log10(abs(A_vOL));
+fig6=figure;plot(targetgaindB,actualgaindB1e5,...
+                 targetgaindB,actualgaindB1e3);grid on;
+xlabel('R_2/R_1, Target Gain, dB');
+ylabel('A_{vOL}, Open Loop Gain, dB');  % Plotting both in one plot command
+                                        % makes the colors different.
+                                        % Why didn't that happen the first
+                                        % time? 
+legend('A_{OL}=10^5','A_{OL}=10^3','Location','NorthWest');
+
+
+%% Lorentzian Spectrum to be used for gain-bandwidth analysis
+%
+% $$ g =\frac{g0 }{1 + j f/f_{B}} $$
+%
+g0=5;  % Gain at zero frequency
+fb=1e6;  % Bandwidth
+% Plot the spectra of amplitude and phase
+f=10.^[4:0.1:8];  %
+g=g0./(1+j*f/fb);
+fig8=figure;
+subplot(2,1,1);semilogx(f,abs(g).^2,'-',fb,abs(g0)^2/2,'o');grid on;
+ylabel('g^2, Power Gain');
+subplot(2,1,2);semilogx(f,180/pi*angle(g),'-',fb,-45,'o');grid on;
+moose=axis;axis([moose(1:2),-90,0]);
+xlabel('f, Frequency, Hz');
+ylabel('Phase, deg');
+
+% Now show some examples at specific frequencies
+%
+%
+freqlist=[1e5,7e5,2e6,1e7];% operating frequencies
+fig9=figure;
+for n=1:4;  
+  f=freqlist(n);
+  g=g0/(1+j*f/fb);
+  %
+  % Plot time history for a couple cycles
+  t=[0:0.01:1]*2/f;
+  v_IN=exp(j*2*pi*f*t);
+  v_OUT=v_IN*g;
+  subplot(2,2,n);
+  plot(t,real(v_IN),'-',t,real(v_OUT),'REPLACE_WITH_DASH_DASH');grid on;
+  if f<1e6; % Write the frequency on the plot
+    text(t(12),4,['f = ',sprintf('%0.0f',f/1e3),' kHz']);
+  else;
+    text(t(12),4,['f = ',sprintf('%0.0f',f/1e6),' MHz']);
+  end;
+    text(t(12),2.5,['f_b = ',sprintf('%0.0f',fb/1e6),' MHz']);
+    axis([t(1),t(end),-5,5]); % Fix the axes
+  xlabel('t, Time, sec');
+  ylabel('Voltage');
+end;
+%
+
+%% NonREPLACE_WITH_DASH_DASHIdeal Op Amp: Gain and Bandwidth
+faxis=10.^[0:0.1:7];  % Frequency axis for spectrum
+targetgainaxis=10.^([0:10:130]/20); % Several gains
+[targetgain,f]=meshgrid(targetgainaxis,faxis);  % Make these 2-D arrays
+A_0OL=1e5;
+f_BOL=1e6/A_0OL
+A_vOL=-targetgain./(1+(targetgain+1)./A_0OL.*(1+j*f/f_BOL));
+fig7=figure;semilogx(f,20*log10(abs(A_vOL)));grid on;
+xlabel('f, Frequency, Hz');
+ylabel('A_{vOL}(f), Open-Loop Gain');
+
+
+##### SOURCE END #####
+-->
+   </body>
+</html>

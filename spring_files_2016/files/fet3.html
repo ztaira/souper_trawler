@@ -1,0 +1,280 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      --><title>fet3.m  FET Characteristic curves and bias</title><meta name="generator" content="MATLAB 7.10"><meta name="date" content="2010-11-29"><meta name="m-file" content="fet3"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h1>fet1.m  FET Characteristic curves and bias</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">A couple of plot commands</a></li><li><a href="#2">Saturation Current</a></li><li><a href="#3">Triode Current</a></li><li><a href="#4">Boundary</a></li><li><a href="#5">Actual current</a></li><li><a href="#6">Curve for Current Mirror Transistor</a></li><li><a href="#7">Plot for logic</a></li><li><a href="#8">Saturation Current</a></li><li><a href="#9">Triode Current</a></li><li><a href="#10">Boundary</a></li><li><a href="#11">Actual current</a></li><li><a href="#12">Curve for Current Mirror Transistor</a></li><li><a href="#13">Curve for Current Mirror Transistor</a></li></ul></div><h2>A couple of plot commands<a name="1"></a></h2><pre class="codeinput">vg2;
+set(0,<span class="string">'DefaultFigurePosition'</span>,[0,0,800,600]);
+
+
+kp=50e-6;w=10e-6;l=2e-6;vt0=1;
+vdaxis=0:0.1:15;
+vgaxis=0:1:5;
+[vd,vg]=meshgrid(vdaxis,vgaxis);
+const=kp*w/l
+VA=150;
+lambda=1/VA;
+vdd=12;
+</pre><pre class="codeoutput">const =
+   2.5000e-04
+</pre><h2>Saturation Current<a name="2"></a></h2><pre class="codeinput">idsat=const*(vg-vt0).^2/2;
+</pre><h2>Triode Current<a name="3"></a></h2><pre class="codeinput">idtriode=const*((vg-vt0).*vd-vd.^2/2);
+</pre><h2>Boundary<a name="4"></a></h2><pre class="codeinput">idboundary=const*vd.^2/2;
+</pre><h2>Actual current<a name="5"></a></h2><pre class="codeinput">id=idtriode.*(idtriode&gt;=idboundary)+idsat.*(idsat&lt;idboundary);
+id=id.*(1+lambda*vd);
+figure;plot(vdaxis,id*1e3);hold <span class="string">on</span>;
+xlabel(<span class="string">'v_{DS}, Drain--Source Voltage, V'</span>);
+ylabel(<span class="string">'i_{D}, Drain Current, mA'</span>);
+</pre><img vspace="5" hspace="5" src="fet3_01.png" alt=""> <h2>Curve for Current Mirror Transistor<a name="6"></a></h2><pre class="codeinput"><span class="comment">% Saturation Current</span>
+idsatm=const*(vg-vt0).^2/2;
+
+<span class="comment">% Triode Current</span>
+idtriodem=const*((vg-vt0).*(vdd-vd)-(vdd-vd).^2/2);
+
+<span class="comment">% Boundary</span>
+idboundarym=const*(vdd-vd).^2/2;
+
+<span class="comment">% Actual current</span>
+idm=idtriodem.*(idtriodem&gt;=idboundarym)+idsatm.*(idsatm&lt;idboundarym);
+idm=idm.*(1+lambda*(vdd-vd));
+idm(vd&gt;vdd)=0;
+
+plot(vdaxis,idm(5,:)*1e3,<span class="string">'b-'</span>);
+moose=axis;
+plot(vdaxis,idboundary*1e3,<span class="string">'k--'</span>);grid <span class="string">on</span>;
+plot(vdaxis,idboundarym.*(vd&lt;vdd)*1e3,<span class="string">'k--'</span>);grid <span class="string">on</span>;
+axis(moose);
+hold <span class="string">off</span>;
+</pre><img vspace="5" hspace="5" src="fet3_02.png" alt=""> <h2>Plot for logic<a name="7"></a></h2><pre class="codeinput">kp=50e-6;w=10e-6;l=2e-6;vt0=0;
+vdaxis=0:0.1:5;
+vgaxis=0:1:5;
+[vd,vg]=meshgrid(vdaxis,vgaxis);
+const=kp*w/l
+VA=150;
+lambda=1/VA;
+vdd=5;
+</pre><pre class="codeoutput">const =
+   2.5000e-04
+</pre><h2>Saturation Current<a name="8"></a></h2><pre class="codeinput">idsat=const*(vg-vt0).^2/2;
+</pre><h2>Triode Current<a name="9"></a></h2><pre class="codeinput">idtriode=const*((vg-vt0).*vd-vd.^2/2);
+</pre><h2>Boundary<a name="10"></a></h2><pre class="codeinput">idboundary=const*vd.^2/2;
+</pre><h2>Actual current<a name="11"></a></h2><pre class="codeinput">id=idtriode.*(idtriode&gt;=idboundary)+idsat.*(idsat&lt;idboundary);
+id=id.*(1+lambda*vd);
+</pre><h2>Curve for Current Mirror Transistor<a name="12"></a></h2><pre class="codeinput"><span class="comment">% Saturation Current</span>
+idsatm=const*(vg-vt0).^2/2;
+
+<span class="comment">% Triode Current</span>
+idtriodem=const*((vg-vt0).*(vdd-vd)-(vdd-vd).^2/2);
+
+<span class="comment">% Boundary</span>
+idboundarym=const*(vdd-vd).^2/2;
+
+<span class="comment">% Actual current</span>
+idm=idtriodem.*(idtriodem&gt;=idboundarym)+idsatm.*(idsatm&lt;idboundarym);
+idm=idm.*(1+lambda*(vdd-vd));
+idm(vd&gt;vdd)=0;
+</pre><h2>Curve for Current Mirror Transistor<a name="13"></a></h2><pre class="codeinput"><span class="comment">% Saturation Current</span>
+idsatm=const*(vg-vt0).^2/2;
+
+<span class="comment">% Triode Current</span>
+idtriodem=const*((vg-vt0).*(vdd-vd)-(vdd-vd).^2/2);
+
+<span class="comment">% Boundary</span>
+idboundarym=const*(vdd-vd).^2/2;
+
+<span class="comment">% Actual current</span>
+idm=idtriodem.*(idtriodem&gt;=idboundarym)+idsatm.*(idsatm&lt;idboundarym);
+idm=idm.*(1+lambda*(vdd-vd));
+idm(vd&gt;vdd)=0;
+
+figure;plot(vdaxis,id*1e3);hold <span class="string">on</span>;
+xlabel(<span class="string">'v_{DS}, Drain--Source Voltage, V'</span>);
+ylabel(<span class="string">'i_{D}, Drain Current, mA'</span>);
+plot(vdaxis,idm*1e3);
+moose=axis;
+plot(vdaxis,idboundary*1e3,<span class="string">'k--'</span>);grid <span class="string">on</span>;
+plot(vdaxis,idboundarym.*(vd&lt;vdd)*1e3,<span class="string">'k--'</span>);grid <span class="string">on</span>;
+axis(moose);
+</pre><img vspace="5" hspace="5" src="fet3_03.png" alt=""> <p class="footer"><br>
+      Published with MATLAB&reg; 7.10<br></p></div><!--
+##### SOURCE BEGIN #####
+%%% fet1.m  FET Characteristic curves and bias
+
+%% A couple of plot commands
+vg2;
+set(0,'DefaultFigurePosition',[0,0,800,600]);
+
+
+kp=50e-6;w=10e-6;l=2e-6;vt0=1;
+vdaxis=0:0.1:15;
+vgaxis=0:1:5;
+[vd,vg]=meshgrid(vdaxis,vgaxis);
+const=kp*w/l
+VA=150;
+lambda=1/VA;
+vdd=12;
+
+%% Saturation Current
+idsat=const*(vg-vt0).^2/2;
+
+%% Triode Current
+idtriode=const*((vg-vt0).*vd-vd.^2/2);
+
+%% Boundary
+idboundary=const*vd.^2/2;
+
+%% Actual current
+id=idtriode.*(idtriode>=idboundary)+idsat.*(idsat<idboundary);
+id=id.*(1+lambda*vd);
+figure;plot(vdaxis,id*1e3);hold on;
+xlabel('v_{DS}, DrainREPLACE_WITH_DASH_DASHSource Voltage, V');
+ylabel('i_{D}, Drain Current, mA');
+
+%% Curve for Current Mirror Transistor
+
+% Saturation Current
+idsatm=const*(vg-vt0).^2/2;
+
+% Triode Current
+idtriodem=const*((vg-vt0).*(vdd-vd)-(vdd-vd).^2/2);
+
+% Boundary
+idboundarym=const*(vdd-vd).^2/2;
+
+% Actual current
+idm=idtriodem.*(idtriodem>=idboundarym)+idsatm.*(idsatm<idboundarym);
+idm=idm.*(1+lambda*(vdd-vd));
+idm(vd>vdd)=0;
+
+plot(vdaxis,idm(5,:)*1e3,'b-');
+moose=axis;
+plot(vdaxis,idboundary*1e3,'kREPLACE_WITH_DASH_DASH');grid on;
+plot(vdaxis,idboundarym.*(vd<vdd)*1e3,'kREPLACE_WITH_DASH_DASH');grid on;
+axis(moose);
+hold off;
+
+%% Plot for logic 
+kp=50e-6;w=10e-6;l=2e-6;vt0=0;
+vdaxis=0:0.1:5;
+vgaxis=0:1:5;
+[vd,vg]=meshgrid(vdaxis,vgaxis);
+const=kp*w/l
+VA=150;
+lambda=1/VA;
+vdd=5;
+
+%% Saturation Current
+idsat=const*(vg-vt0).^2/2;
+
+%% Triode Current
+idtriode=const*((vg-vt0).*vd-vd.^2/2);
+
+%% Boundary
+idboundary=const*vd.^2/2;
+
+%% Actual current
+id=idtriode.*(idtriode>=idboundary)+idsat.*(idsat<idboundary);
+id=id.*(1+lambda*vd);
+
+%% Curve for Current Mirror Transistor
+
+% Saturation Current
+idsatm=const*(vg-vt0).^2/2;
+
+% Triode Current
+idtriodem=const*((vg-vt0).*(vdd-vd)-(vdd-vd).^2/2);
+
+% Boundary
+idboundarym=const*(vdd-vd).^2/2;
+
+% Actual current
+idm=idtriodem.*(idtriodem>=idboundarym)+idsatm.*(idsatm<idboundarym);
+idm=idm.*(1+lambda*(vdd-vd));
+idm(vd>vdd)=0;
+
+%% Curve for Current Mirror Transistor
+
+% Saturation Current
+idsatm=const*(vg-vt0).^2/2;
+
+% Triode Current
+idtriodem=const*((vg-vt0).*(vdd-vd)-(vdd-vd).^2/2);
+
+% Boundary
+idboundarym=const*(vdd-vd).^2/2;
+
+% Actual current
+idm=idtriodem.*(idtriodem>=idboundarym)+idsatm.*(idsatm<idboundarym);
+idm=idm.*(1+lambda*(vdd-vd));
+idm(vd>vdd)=0;
+
+figure;plot(vdaxis,id*1e3);hold on;
+xlabel('v_{DS}, DrainREPLACE_WITH_DASH_DASHSource Voltage, V');
+ylabel('i_{D}, Drain Current, mA');
+plot(vdaxis,idm*1e3);
+moose=axis;
+plot(vdaxis,idboundary*1e3,'kREPLACE_WITH_DASH_DASH');grid on;
+plot(vdaxis,idboundarym.*(vd<vdd)*1e3,'kREPLACE_WITH_DASH_DASH');grid on;
+axis(moose);
+
+##### SOURCE END #####
+--></body></html>
