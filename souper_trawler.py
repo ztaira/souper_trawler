@@ -68,7 +68,7 @@ def pull_links():
                 print("Limit Reached!")
 
 if __name__ == "__main__":
-    # pull_possible_links('http://www.ece.neu.edu/courses/eece2412/2016fa/', 0)
-    # select_possible_links()
+    pull_possible_links('http://www.ece.neu.edu/courses/eece2412/2016fa/', 0)
+    select_possible_links()
     pull_links()
 
