@@ -1,4 +1,4 @@
-# souper_trawler
+# souper\_trawler
 Hack-A-Week 9: A python script to scan a webpage and pull down relevant files.
 
 Specifically, to pull down files from one of my class webpages so that I don't
@@ -21,8 +21,8 @@ malware without first being prompted
 - Grabs HTML of a webpage and finds all the links using BeautifulSoup4
 - Saves those links to a file called "hrefs.txt" along with the level of recursion
 - Using hrefs.txt, prompts the user for which URLs to download from and saves
-the selected URLs to "selected_hrefs.txt"
-- Using selected_hrefs.txt, pulls down a file from each URL and saves it into
+the selected URLs to "selected\_hrefs.txt"
+- Using selected\_hrefs.txt, pulls down a file from each URL and saves it into
 the "files" directory
 - Selects file name based on whatever is after the last '/' in the URL. For
 example, "https://www.example.com/myfile.pdf" would yield a file name of
@@ -43,7 +43,7 @@ example, "https://www.example.com/myfile.pdf" would yield a file name of
 ```
 ### Example Output:
 
-### Searching for relevant URLs:
+### Recursively searching for relevant URLs:
 
 ![alt text][outputimage]
 [outputimage]: https://github.com/ztaira14/souper_trawler/blob/master/diagrams/SearchingURLs.png "Searching URLs"
