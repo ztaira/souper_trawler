@@ -9,7 +9,7 @@ when used on a different site.
 
 ### Usage:
 - Replace the url in `pull_possible_links('https://www.ece.neu.edu/courses/eece2412/2016a/', 0)` in line 71 with the url you want to grab things from
-- Run the python script with `python souper_trawler.py` or in the editor of your choice 
+- Run the python script with `python souper_trawler.py`
 
 ### Features:
 - Recursively scan links to get possible file URLs
