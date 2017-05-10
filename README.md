@@ -46,15 +46,12 @@ example, "https://www.example.com/myfile.pdf" would yield a file name of
 
 ### Recursively searching for relevant URLs:
 
-![alt text][outputimage]
-[outputimage]: https://github.com/ztaira14/souper_trawler/blob/master/diagrams/SearchingURLs.png "Searching URLs"
+![alt text](https://github.com/ztaira14/souper_trawler/blob/master/diagrams/SearchingURLs.png "Searching URLs")
 
 ### Selecting relevant URLs:
 
-![alt text][outputimage2]
-[outputimage2]: https://github.com/ztaira14/souper_trawler/blob/master/diagrams/SelectingURLs.png "Selecting URLs"
+![alt text](https://github.com/ztaira14/souper_trawler/blob/master/diagrams/SelectingURLs.png "Selecting URLs")
 
 ### Getting relevant URLs:
 
-![alt text][outputimage3]
-[outputimage3]: https://github.com/ztaira14/souper_trawler/blob/master/diagrams/GettingURLs.png "Getting URLs"
+![alt text](https://github.com/ztaira14/souper_trawler/blob/master/diagrams/GettingURLs.png "Getting URLs")
